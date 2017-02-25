@@ -1,0 +1,10 @@
+[Unit]
+Description=RMTC
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/rmtcd
+
+[Install]
+WantedBy=multi-user.target
