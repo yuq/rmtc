@@ -1,0 +1,62 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:	         rmtc
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: RMTC startup script
+### END INIT INFO
+
+export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+NAME=rmtcd
+DESC=rmtcd
+PIDFILE=/var/run/$NAME.pid
+
+DAEMON="/usr/local/bin/$NAME"
+DAEMONDIR="/"
+DAEMONARGS=""
+
+test -x $DAEMON || exit 0
+
+# setup env
+if test -z "$DAEMONENV"; then
+	echo "No daemon env for $NAME"
+else
+	export $DAEMONENV
+fi
+
+# change work dir
+cd $DAEMONDIR
+
+set -e
+
+case "$1" in
+	start)
+		echo -n "Starting $NAME: "
+		start-stop-daemon -S -b -q -m -p $PIDFILE -x "$DAEMON" -- $DAEMONARGS
+		echo "$NAME."
+		;;
+
+	stop)
+		echo -n "Stopping $NAME: "
+		start-stop-daemon -K -x "$DAEMON" -p $PIDFILE
+		echo "$NAME."
+		;;
+
+	restart|force-reload)
+		echo -n "Restarting $NAME: "
+		start-stop-daemon -K -x "$DAEMON" -p $PIDFILE
+		sleep 1
+		start-stop-daemon -S -b -q -m -p $PIDFILE -x "$DAEMON" -- $DAEMONARGS
+		echo "$NAME."
+		;;
+
+	*)
+		echo "Usage: $NAME {start|stop|restart|force-reload}" >&2
+		exit 1
+		;;
+esac
+
+exit 0
